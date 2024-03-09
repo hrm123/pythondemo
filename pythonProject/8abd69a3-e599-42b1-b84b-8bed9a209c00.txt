@@ -1,0 +1,46 @@
+public class Solution {
+    public int SubarraySum(int[] nums, int k) {
+        int answer = 0;
+        int left = 0, right =0, n = nums.Length, total=0;
+        while(right<n){
+            total += nums[right];
+            Console.WriteLine($"total={total},right={right}");
+            if(total == k){
+                answer++;
+                // total -= nums[left];
+                // left++;
+            } else if(total>k ){
+                if(left!=right){
+                    // move left pointer till total is less than k
+                    while(total>k && left<=right){
+                        total -= nums[left];
+                        Console.WriteLine($"total={total}");
+                        left++;
+                    }
+                    if(total==k && left<n){
+                        answer++;
+                        // total = 0;
+                    }
+                    if(left==right){
+                        total = 0;
+                    }
+                } else{
+                    total = 0;
+
+                }
+            }
+            right++;
+        }
+        //right has reached end .. only option is to mvoe left forward
+        while(left<n-1 ){
+            total -= nums[left];
+            Console.WriteLine($"total={total}");
+            if(total==k){
+                answer++;
+                break;
+            }
+            left++;
+        }
+        return answer;
+    }
+}
