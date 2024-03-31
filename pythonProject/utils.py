@@ -79,6 +79,7 @@ def grid_values(sudokuBoardStr, boxes):
     assert len(sudokuBoardStr) == 81
     return dict(zip(boxes, sudokuBoardStr))
 
+
 def display(values, squares, rows, cols):
     "Display these values as a 2-D grid."
     width = 1+max(len(values[s]) for s in squares)
@@ -99,8 +100,8 @@ def test_sudoku_setup(squares, unitlist, units, peers):
     assert len(unitlist) == 27
     assert all(len(units[s]) == 3 for s in squares)
     assert all(len(peers[s]) == 20 for s in squares)
-    assert units['C2'] == [['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2'],
-                           ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'],
+    assert units['C2'] == [['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'],
+                           ['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2'],
                            ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3']]
     assert peers['C2'] == set(['A2', 'B2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2',
                                'C1', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9',
@@ -128,8 +129,10 @@ def assign(values, s, d, units, peers):
     else:
         return False
     
+    # It turns out that the fundamental operation is not assigning a value, but rather eliminating one of the possible values for a square - STRATEGY 1 - Elimination
 def eliminate(values, s, d, units,peers):
-    """Eliminate d from values[s]; propagate when values or places <= 2.
+    """Eliminate d from values[s]; (Ex- if all values of '1' have to be eliminated from values['A3'] )
+    Propagate when values or places <= 2.
     Return values, except return False if a contradiction is detected."""
     if d not in values[s]:
         return values ## Already eliminated
@@ -137,13 +140,13 @@ def eliminate(values, s, d, units,peers):
     ## (1) If a square s is reduced to one value d2, then eliminate d2 from the peers.
     if len(values[s]) == 0:
         return False ## Contradiction: removed last value
-    elif len(values[s]) == 1:
+    elif len(values[s]) == 1: # only one value 'd2' left for 's' cell. Hence this value can be removed from its peer cells
         d2 = values[s]
-        if not all(eliminate(values, s2, d2, units, peers) for s2 in peers[s]):
+        if not all(eliminate(values, s2, d2, units, peers) for s2 in peers[s]): # STRAGETY 3 - Constraint propogation reducng search space
             return False
-    ## (2) If a unit u is reduced to only one place for a value d, then put it there.
+    ## (2) If a unit u (row or col of 3x3 ) is reduced to only one place for a value d, then put it there - STRATEGY 2 - Only one choice for a digit => assign it to that cell
     for u in units[s]:
-        dplaces = [s for s in u if d in values[s]]
+        dplaces = [s for s in u if d in values[s]] # for each unit (row/colum/3x30 get all cells with 'd' allowed.. ie., possible values string has 'd')
         if len(dplaces) == 0:
             return False ## Contradiction: no place for this value
         elif len(dplaces) == 1:
@@ -151,3 +154,4 @@ def eliminate(values, s, d, units,peers):
                 if not assign(values, dplaces[0], d, units, peers):
                     return False
     return values
+

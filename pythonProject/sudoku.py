@@ -1,4 +1,4 @@
-from utils import grid_values
+from utils import grid_values, grid_values_
 from utils import display, parse_grid
 from utils import test_sudoku_setup 
 
@@ -31,7 +31,13 @@ print( sq_units)
 
 print('grid_values')
 print('--------------------------')
-display(grid_values('..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..', cells), cells,rows,cols)
+print(grid_values('..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..', cells))
+# display(grid_values('..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..', cells), cells,rows,cols)
+
+print('grid_values_')
+print('--------------------------')
+print(grid_values_('..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..', cells))
+
 
 unitlist = ([cross(rows, c) for c in cols] +
             [cross(r, cols) for r in rows] +
