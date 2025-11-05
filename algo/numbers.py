@@ -268,7 +268,174 @@ def PrimeFactors(n): # prime factors are divisors of n that are prime O(sqrt(n) 
     # if n1 is still >2 then it is a prime number
     if n1>2:
         prime_factors.append(n1)
-    return prime_factors
+    return prime_factors  
 
 # print(PrimeFactorsNaive(315))  # 3,3,5,7
-assert(PrimeFactors(315) == [3,3,5,7])
+# assert(PrimeFactors(315) == [3,3,5,7])
+
+def FetchDivisors(n):
+    # we can find divisors by checking numbers from 1 to sqrt(n)
+    # any divisor greater than sqrt(n) will have a pair divisor less than sqrt(n)
+    divisors = []
+    for iter in range(1, math.ceil(math.sqrt(n))+1):
+        if n%iter ==0:
+            divisors.append(iter)
+            if iter != n//iter: # to avoid adding square root twice
+                divisors.append(n//iter) # add the pair divirsor
+    divisors.sort() # this will cause O(n log(n))) time complexity though. To avoid this see FetchDivisorsV2 which is O(n)
+    return divisors
+
+def FetchDivisorsV2(n):
+    # we can find divisors by checking numbers from 1 to sqrt(n)
+    # any divisor greater than sqrt(n) will have a pair divisor less than sqrt(n)
+    divisors_low = []
+    divisors_high = []
+    for iter in range(1, math.ceil(math.sqrt(n))+1):
+        if n%iter ==0:
+            divisors_low.append(iter)
+            if iter != n//iter: # to avoid adding square root twice
+                divisors_high.append(n//iter) # add the pair divirsor
+    divisors_high.reverse() # reverse the high divisors to get them in ascending order
+    return divisors_low + divisors_high  # concatenation of two lists
+
+
+# print(FetchDivisors(36))  # 1,2,3,4,6,9,12,18,36
+# assert(FetchDivisors(36) == [1,2,3,4,6,9,12,18,36])
+# print(FetchDivisorsV2(36))  # 1,2,3,4,6,9,12,18,36
+# assert(FetchDivisorsV2(36) == [1,2,3,4,6,9,12,18,36])
+
+def SieveOfEratosthenes(n): # O(n log log n) time complexity, O(n) space complexity. which is much better than  naive method is O(n sqrt(n)) = O(n power (3/2))
+    # find all prime numbers till n
+    # create a boolean array of size n+1 and initialize all entries as true. 
+    # Since we have marked all numbers (location of that number) that have multiples as false,
+    # a value in is_prime[i] will be false if i is Not a prime, else true
+    is_prime = [True for iter in range(n+1)]
+    is_prime[0] = False
+    is_prime[1] = False
+    for iter in range(2, math.ceil(math.sqrt(n))+1):
+        if is_prime[iter]:
+            for multiple in range(2*iter, n+1, iter): # mark all multiples of iter as non-prime 
+                is_prime[multiple] = False
+    primes = []
+    for iter in range(n+1):
+        if is_prime[iter]:
+            primes.append(iter)
+    return primes
+
+
+
+
+def Power(x,n): # time complexity O(log n), space complexity O(1) 
+    # log(n) iterations if we use previous product to calculate next product
+    # odd number power is special case since it can be always made even power times same number. so it has same complexity
+    if n==0:
+        return 1
+    result = 1
+    x1 = x
+    n1 = n
+    while n1>0: # we go in halving steps -  n,n/2,n/4... to 0 => O(log n)
+        if n1%2 == 1: # odd power
+            result = result * x1
+            n1 -= 1
+        else: # even power
+            x1 = x1 * x1
+            n1 = n1 // 2
+    return result
+
+# assert(Power(2,0) == 1), "Power(2,0) == 1 failed"
+# assert(Power(2,5) == 32), "Power(2,5) == 32 failed"
+# assert(Power(3,4) == 81), "Power(3,4) == 81 failed"
+# assert(Power(3,10) == 59049), "PowerByBinaryExponentiation(2,5) == 32 failed"
+
+
+def PowerWithoutWhile(x,n): # time complexity O(log n), space complexity O(1) - my solution
+    # log(n) iterations if we use previous product to calculate next product
+    # x, x*x = x2, x2*x2 = x4, x4*x4=x16, x16*x16=x32... => O(log n) time complexity, O(1) space complexity
+    # odd number power is special case since it can be always made even power times same number. so it has same complexity
+    if n==0:
+        return 1
+    if n==1:
+        return x
+    result = 1
+    n1 = n
+       
+    if n%2 == 1: # odd power
+        n1 -= 1
+    result = x
+    for iter in range(math.log2(n1)):
+            result *= result
+    if n%2 == 1: # odd power
+        result = result * x
+    return result
+        
+
+
+# assert(PowerWithoutWhile(2,0) == 1), "Power(2,0) == 1 failed"
+# assert(PowerWithoutWhile(2,5) == 32), "Power(2,5) == 32 failed"
+# assert(PowerWithoutWhile(3,4) == 81), "Power(3,4) == 81 failed"
+# assert(PowerWithoutWhile(3,10) == 59049), "PowerByBinaryExponentiation(2,5) == 32 failed"
+
+
+# assert(Power(2,0) == 1), "Power(2,0) == 1 failed"
+# assert(Power(2,5) == 32), "Power(2,5) == 32 failed"
+# assert(Power(3,4) == 81), "Power(3,4) == 81 failed"
+# assert(Power(3,10) == 59049), "PowerByBinaryExponentiation(2,5) == 32 failed"
+
+def PowerRecursive(x,n): # time complexity O(log n), space complexity O(1)
+    # log(n) iterations if we use previous product to calculate next product
+    # x, x*x = x2, x2*x2 = x4, x4*x4=x16, x16*x16=x32... => O(log n) time complexity, O(1) space complexity
+    # odd number power is special case since it can be always made even power times same number. so it has same complexity
+    if n==0:
+        return 1
+    if n%2 == 1: # odd power
+        return x * PowerRecursive(x, n-1)
+    else: # even power
+        return PowerRecursive(x, n//2) * PowerRecursive(x, n//2)
+
+# assert(PowerRecursive(2,0) == 1), "PowerRecursive(2,0) == 1 failed"
+# assert(PowerRecursive(2,5) == 32), "PowerRecursive(2,5) == 32 failed"
+# assert(PowerRecursive(3,4) == 81), "PowerRecursive(3,4) == 81 failed"
+
+
+def GetBits(n): # TODO Understand the mod and div approach.  optimize this function to directly return list of bits without using mod and div operators
+    # get bits of n in LSB to MSB order
+    bits = []
+    n1 = n
+    while n1>0: # O(log(n))
+        bits.append(n1%2) # if current number is even then LSB is 0 else 1
+        n1 = n1//2 # each iteration you half the number - this operator does floor division
+    return bits
+
+#assert(GetBits(10) == [0,1,0,1]), "GetBits(10) == [0,1,0,1] failed"
+
+
+def PowerByBinaryExponentiation(x,n): # time complexity O(log n), space complexity O(1) - same as previous 'power' method.. but more explained
+    # any number can be written as multiplication of powers of 2 - 
+    # basically binary representation of a number, ex: binary representation of 10 is 1010
+    # since binary representation has log n bits, we can find power in log n time - eah iteration we multiple by power of 2
+    # x^n = x^(b0*2^0 + b1*2^1 + b2*2^2 + ... + bk*2^k) where bi is 0 or 1
+    # = x^(b0*2^0) * x^(b1*2^1) * x^(b2*2^2) * ... * x^(bk*2^k)
+    # where bi is 0 or 1
+    # for example to find x^13
+    # ex: 13 = 8 + 4 + 1 = 2^3 + 2^2 + 2^0 => x^13 = x^(2^3) * x^(2^2) * x^(2^0)
+    # we can find powers of 2 by squaring the previous power
+    if n ==0:
+        return 1
+    if n ==1:
+        return x
+    
+    bits = GetBits(n) # get bits of n in LSB to MSB order
+    print(f"bits of {n} are {bits}")
+    #iterate over bits and multiply corresponding powers of 2
+    result = 1
+    tmp = x # x^(2^0)
+    for indx,bit in enumerate(bits):
+        if bit == 1:
+            print(f"bit at index {indx} is 1, including (x ** 'power_of_2_at_current_bit') to result")
+            result *= tmp # we are just adding to result if bit at current place is 1
+        tmp = tmp * tmp # square the previous power to get next power of 2
+    return result
+
+# assert(PowerByBinaryExponentiation(2,0) == 1), "PowerByBinaryExponentiation(2,0) == 1 failed"
+# assert(PowerByBinaryExponentiation(3,10) == 59049), "PowerByBinaryExponentiation(2,5) == 32 failed"
+# assert(PowerByBinaryExponentiation(3,4) == 81), "PowerByBinaryExponentiation(3,4) == 81 failed"
