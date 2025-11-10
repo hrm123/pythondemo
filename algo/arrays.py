@@ -228,4 +228,472 @@ def PrintLeadersInAnArray(arr):
 # assert(PrintLeadersInAnArray([10,20,30]) == [30])
 # assert(PrintLeadersInAnArray([30,20,10]) == [30,20,10])
 
-        
+
+'''
+find a pair (i,j) such that arr[j]-arr[i] is maximmum possible where j>i
+first plan - keep track of lowest_number (i) so far and keep track of max_difference (evaluate at each cell) with the lowest_number. Also update j at the max_difference.
+If at any cell, the number is lower than lowest_number then update the lowest_number/j as that cells number/index. Going forward use that lowest_number
+to diff with next cell values. At each diff check if that diff is > max_difference. If yes, then update that max_difference/j to new value/index.
+When reaching the end of the array the max_difference is the best you can get and (i,j) is teh cells at which maximum difference is got.
+'''        
+def MaxDiff(arr):
+    i = 0
+    #print(f"arry={arr}")
+    n = len(arr)
+    if n==2:
+        return 0 if arr[1]-arr[0] <0 else arr[1]-arr[0] 
+    j = None if arr[0]>arr[1] else 1
+    l = arr[0] if arr[0]<arr[1] else arr[1] # l = lowest array value
+    
+
+    mv = arr[1]-arr[0] if arr[1]>arr[0] else 0 # mv = maximum value
+    for y in range(2,n):
+        if arr[y]-l > mv:
+            mv = arr[y]-l # new high point wrt current low point
+            j = y
+        if arr[y]<l:
+            l = arr[y] # new low point which will be the reference for future difference
+            i = y
+            j = None
+        #print(f"index={y},i={pi if j is None else i},j={pj if j is None else j},max value={mv},lowest element={l}")
+    return mv
+
+# assert(MaxDiff([2,3,10,6,4,8,1]) == 8)
+# assert(MaxDiff([7,9,5,6,3,2]) == 2)
+# assert(MaxDiff([10,20,30]) == 20)
+
+
+def FrequenciesOfNumbersInUnsortedArray(arr):
+    n = len(arr)
+    response = {}
+    for y in range(n):
+      if arr[y] in response:
+        response[arr[y]] += 1
+      else:
+        response[arr[y]] = 1
+    return response    
+# assert(FrequenciesOfNumbersInUnsortedArray([10,25,10,30,10,30])=={10:3, 25:1, 30:2})
+# assert(FrequenciesOfNumbersInUnsortedArray([10,10,10,10])=={10:4})
+# assert(FrequenciesOfNumbersInUnsortedArray([30,10,20])=={10:1, 20:1, 30:1})
+
+def FrequenciesOfNumbersInSortedArray(arr):
+    n = len(arr)
+    assert(n>0)
+    freq = []
+    if n==1:
+        freq.append(1)
+        return freq
+    tmp = 1
+    
+    for y in range(1,n):
+      if arr[y-1] != arr[y]:
+        freq.append(tmp)
+        tmp = 1
+      else:
+        tmp += 1
+    freq.append(tmp)
+    return freq   
+
+# assert(FrequenciesOfNumbersInSortedArray([10])==[1])
+# assert(FrequenciesOfNumbersInSortedArray([10,10,10,25,30,30])==[3, 1, 2])
+# assert(FrequenciesOfNumbersInSortedArray([10,10,10,10])== [4])
+# assert(FrequenciesOfNumbersInSortedArray([10,20,30])==[1,1,1])
+
+'''
+Maximize the profit (buy on one day and sell on any other following day and can repeat this buy-sell process) given prices of stock each day for 'n' days.
+plan - buy at point before it goes up and sell at highest point before it goes down.
+'''
+def BuyAndSellStock(prices):
+    profit = 0
+    n = len(prices)
+    l = prices[0]
+    h = None
+    for y in range(1, n):
+        if h is None: # we are at second cell (or) just going on an down trend
+            if prices[y] <= l:
+                l = prices[y]
+                #print(f"now l={l}")
+            else: # just started upward trend
+                h = prices[y]
+                #print(f"started upward trend after l={l}, now h={h}")
+        else: # we are on upward trend
+            if prices[y] >= h:
+                h = prices[y]
+                #print(f"now h={h}")
+            else: # just started downward trend
+                profit += h-l # get profit till previous high
+                l = prices[y]
+                #print(f"started downward trend after {h}, profit = {profit}, l = {l}")
+                h = None
+    if h != None: # last point was the highest
+        profit += h-l
+    return profit
+
+# assert(BuyAndSellStock([1,5,3,8,12]) == 13)
+# assert(BuyAndSellStock([30,20,10]) == 0)
+# assert(BuyAndSellStock([10,20,30]) == 20)
+# assert(BuyAndSellStock([1,5,3,1,2,8]) == 11)
+
+'''
+Maximize the profit (buy on one day and sell on any other following day and can repeat this buy-sell process) given prices of stock each day for 'n' days.
+simplier plan - when the stock price goes up add the difference of prviousprice and current price to profit
+'''
+def BuyAndSellStockSimple(prices):
+    n = len(prices)
+    profit = 0
+    for y in range(1, n):
+        if prices[y]>prices[y-1]:
+            profit += prices[y]-prices[y-1]
+    return profit
+
+
+# assert(BuyAndSellStockSimple([1,5,3,8,12]) == 13)
+# assert(BuyAndSellStockSimple([30,20,10]) == 0)
+# assert(BuyAndSellStockSimple([10,20,30]) == 20)
+# assert(BuyAndSellStockSimple([1,5,3,1,2,8]) == 11)
+
+'''
+Given a array of non-negative integers representing heights of bars, how much maximum water can you collect between them?
+plan - assume that bar width is 1. height changes from one bar to another. note down start and end of troughs in one pass of the array (can do this by noting start as bar from which downward trend started and end of trough
+as the bar after which next downward trend starts). end result of this pass = [(start_index,end_index)]
+next pass of the array - for all bars from start+1 to end-1, vol += (|start-end|-current_bar_height)*1
+'''
+def MaximumRainWater(arr):
+    n = len(arr)
+    start = None
+    end = None
+    upward = None
+    troughs = []
+    for y in range(1,n):
+        if arr[y-1] > arr[y] and start==None: # downward trend
+            start = y-1
+        elif arr[y-1] < arr[y] and start!=None:
+            upward = 1 # upward trend of trough started
+            if y == n-1: # this is last element after upward trend started
+                end = y
+                troughs.append((start,end))
+        elif arr[y-1] > arr[y] and start!=None and upward!=None: # next downward trend started => trough is between first downward index and y-1
+            end = y-1
+            upward = None
+            troughs.append((start,end))
+            start = end
+    vol = 0
+    #print(troughs)
+    for trough in troughs:
+        ht = min(arr[trough[0]],arr[trough[1]]) # height of container formed by the trough
+        # print(f"ht={ht}")
+        for y in range(trough[0]+1,trough[1]): # ignore the start and end bard of trough
+            assert((ht-arr[y])>0) # debug assertion that checks that all bars in a trough are lesser height than the height difference of ends of trough
+            vol += ((ht-arr[y])*1)
+    return vol
+
+#assert(MaximumRainWater([2,0,2])==2)
+#assert(MaximumRainWater([3,0,1,2,5])==6)
+
+'''
+given a array, find subarray (contiguous elements of array) with maximum sum
+
+'''
+def MaximumSubarraySum(arr):
+    n = len(arr)
+    max_total_current = arr[0]
+    max_total = max_total_current
+    for y in range(1,n):
+        # print(f"max_total={max_total}")
+        max_total_current = max(arr[y], max_total_current+ arr[y])
+        max_total = max(max_total,max_total_current)
+    #print(f"max_total={max_total}")
+    return max_total
+
+#assert(MaximumSubarraySum([2,3,-8,7,-1,2,3])==11)
+#assert(MaximumSubarraySum([5,8,3])==16)
+#assert(MaximumSubarraySum([-6,-1,-8])==-1)
+
+'''
+Get the subarray that has minimum sum
+'''
+def MinimumSubarraySum(arr):
+    n = len(arr)
+    min_total_current = arr[0]
+    min_total = min_total_current
+    for y in range(1,n):
+        # print(f"min_total={min_total}")
+        min_total_current = min(arr[y], min_total_current+ arr[y])
+        min_total = min(min_total,min_total_current)
+    # print(f"min_total={min_total}")
+    return min_total
+
+'''
+Given an array, find length of  maximum sum subarray such that the subaray elements are alternating even odd elements. Specialization of
+normal maximum sum subarray problem.
+'''
+def MaxSumSubArrayWithEvenOddAlternating(arr):
+    n = len(arr)
+    max_total_current = arr[0]
+    max_total = max_total_current
+    max_total_index = 0
+
+    def ElementsAreNotSameType(y1,y2):
+        return (y1%2==0 and (not y2%2==0)) or ((not y1%2==0) and y2%2==0)
+
+    for y in range(1,n):
+        if ElementsAreNotSameType(arr[y],arr[y-1]):
+            max_total_current = max(max_total_current, max_total_current+arr[y])
+        else: # current element breaks even odd pattern => cannot consider total given by (y-1)the element
+            max_total_current = arr[y]
+        if max_total<max_total_current:
+            max_total = max_total_current
+            max_total_index = y
+        # print(f"y={y}, max_total={max_total},max_total_current={max_total_current},max_total_index={max_total_index}")
+        total_tmp = max_total
+        index_tmp = max_total_index-n
+        lenght_of_max_array=0
+        while total_tmp!=0:
+            total_tmp -= arr[index_tmp];
+            index_tmp -= 1
+            lenght_of_max_array += 1
+
+    return lenght_of_max_array
+
+#assert(MaxSumSubArrayWithEvenOddAlternating([10,12,14,7,8])==3)
+#assert(MaxSumSubArrayWithEvenOddAlternating([7,10,13,14])==4)
+#assert(MaxSumSubArrayWithEvenOddAlternating([10,12,8,4])==1)
+
+'''
+circular subarray include normal subarray + the subarrays formed by connecting last element of array to the first element.
+plan - create new array [1,2,..n-1,0,1,...n-1]. 
+0th element suffix array if from previous 1 element
+1st element suffix array is from preious 2nd element 
+and so on ...
+ex - [0,1,2,3] is source array. modified array = [1,2,3,0,1,2,3]
+while calculating max suffix array for each element from 1,n-1, we store the length of max suffix array as well.
+for calculating the max suffix array of ith element -
+we consider if length of previous element suffix array is n. If it is, then we have to substract  the value of nthe element from previous elements
+max suffix array to get the new max suffix array to use for i+1th element.
+
+current_max[i+1] = 
+if len(max suffix array of ith element)==n: # remove the i-nth element since it is same as i+1 th element
+    max(arr[i+1],arr[i+1]+current_max[i]-arr[i-n])
+else:
+    max(arr[i+1],arr[i+1]+current_max[i])
+
+'''
+def MaximumCircularSumSubarray(arr):
+    n = len(arr)
+    max_sum_original = MaximumSubarraySum(arr)
+    # print(f"arr={arr}")
+    # maximum sub array of circular for of arr, which is circular array = total sum of all elements of arr - (minimum sum subarray of arr)
+    max_sum_circular = sum(arr) - MinimumSubarraySum(arr)
+    return max(max_sum_original, max_sum_circular)
+
+#assert(MaximumCircularSumSubarray([5,-2,3,4])== 12)
+#assert(MaximumCircularSumSubarray([2,3,-4])== 5)
+#assert(MaximumCircularSumSubarray([8,-4,3,-5,4])== 12)
+#assert(MaximumCircularSumSubarray([-3,4,6,-2])== 10)
+#assert(MaximumCircularSumSubarray([3,-4,5,6,-8,7])== 17)
+
+'''
+Majority element in an array is element that appears > n/2 times. Return majority element in 
+given array if it exists
+first plan - O(n log(n)) algorithm is easy. Sort the array which is O(n log(n)). 
+Next iterate over all elements of array O(n) noting the element that has maximum frequency.
+If the max_frequency > n/2 return that element .. else return None
+Next thought improvement O(n) runtime - why not use hash table - in O(n) pass it will store frequencies of all the elements .. and
+when I am updating the frequency of particular element, keep the count of max_frqeuency_so_far and corresponding element.
+
+'''
+def MajorityElement(arr):
+    f = {}
+    n = len(arr)
+    max_freq = 0
+    for i in range(n):
+        v = arr[i]
+        if v in f:
+            f[v] += 1
+        else:
+            f[v] = 1
+        if f[v]>max_freq:
+            max_freq = f[v]
+            elem = v
+    return elem if max_freq > n//2 else None
+            
+# assert(MajorityElement([8,3,4,8,8])==8)
+# assert(MajorityElement([3,7,4,7,7,5])==None)
+
+'''
+Make all elements of given binary array same by flipping all 0's to 1's or viceversa (one of of these is allowed)
+When flipping, you can flip consecutive 0's and 1's together. 
+Find mimimum number of flips required to make array elements all same and print those flips.
+plan - find count of islands of o's and count of islands of 1 and choose to flip the 
+one with lesser islands.
+Even mroe optimised solution - If you observe patterns in input/solution, you wil see that you just need to find the number that
+is the 'first change' in array and then replace all islands that correspond to this number. This means islans field used in algorithm is not required.
+'''
+def MinimumNumberOfFlips(arr):
+    n = len(arr)
+    start_indices = ["",""]
+    islands = [0,0] # counts of islands for 0's and for 1's
+    prev = None
+    for y in range(n):
+        if not prev==arr[y]:
+            islands[arr[y]] += 1 
+            start_indices[arr[y]] += "," + str(y)
+    response = start_indices[0] if islands[0]>islands[1] else start_indices[0]
+    print(f"response={response[1:]}")
+    return response[1:]
+
+# assert(MinimumNumberOfFlips([1,1,0,0,0,1])=="2,3,4")
+# assert(MinimumNumberOfFlips([1,0,0,0,1,0,0,1,1,1,1])=="1,2,3,5,6")
+# assert(MinimumNumberOfFlips([1,1])=="")
+# assert(MinimumNumberOfFlips([0,1])=="0")
+
+'''
+From all the ksized subarrays find the one with maximum sum.
+plan - there will be n-k+1 totals to be compared.tart iterating through element. keep running_total in one variable and response_total in another variable.
+Keep another variable start_index. While moving through the array (y in range(n)) keep adding numbers to running_total while 
+  (y-start_index) <= k. At end, check response_total =  max(response_total, running_total). After reaching k, we add yth element
+  to running_total and substract y-k th element from runnign total and at each iteration response_total =  max(response_total, running_total).
+  At end of array return response_total =  max(response_total, running_total).
+This is sliding window technique. We use the result from previous window in calculation of result of current window to get
+performance optimzation.
+'''
+def MaxSubArrayOfSize(arr, k):
+    n = len(arr)
+    rt = 0 # running total
+    t = 0 # max total
+    for y in range(n):
+        if y<k:
+            rt += arr[y]
+        else:
+            t = max(t,rt) #previous sliding window
+            rt += arr[y]
+            rt -= arr[y-k]
+    t = max(t,rt) # for kth sliding window ending in last element of arr
+    return  t
+            
+
+# assert(MaxSubArrayOfSize([1,8,30,-5,20,7],3)==45)
+# assert(MaxSubArrayOfSize([5,-10,6,90,3],2)==96)
+
+'''
+Find if any subarray exists with elements totaling to given total.
+plan - set marker=0,running_total=0. while(y< (len(arrNonNegative))),keep adding arr+ay numbers to running_total and when it exceeds
+target_total, substract the number at arr NonNegative[marker]. If the running_total is > target_total, marker++ and 
+substract arrNonNegative[marker] from running_total. Keep doing this until running_total<target_total or end of array or marker==y or runnig_total==target_total (here we exit with 1 result).
+Essentially we are removing elements from the running_total that if NOT will cause the running_total to always exceed 
+target_total going forward. If marker reached 'y' then the curent subarray will not have any numbers adding to target_total and y goes to next iteration.
+if after removing one or more numbers running_total<target_total then y++ and go through same logic
+instructors approach -variable size window sliding technique is used. You shrink the window by increasing its starting point and icnrease the window size
+by increasing the endpoint
+arr = arrNonNegative
+tar = target_total
+'''
+def SubarrayWithGivenSum(arr,tar):
+    s=0
+    e=0
+    n = len(arr)
+    r = 0 # running total
+    while e<n:
+        r += arr[e]
+        if r == tar:
+            return 1
+        if r>tar: # substract numbers from start of window
+            while r>tar and e>s:
+                r -= arr[s]
+                s += 1
+            e += 1
+    return 0
+
+# assert(SubarrayWithGivenSum([1,4,20,3,10,5],33)==1)
+# assert(SubarrayWithGivenSum([1,4,0,0,3,10,5],7)==1)
+# assert(SubarrayWithGivenSum([2,4],3)==0)
+
+
+'''
+Given one array of numbers we need to find sum of elements from start index to end index in O(1)
+This is solved using prefix sum technique ( lot of puzzles this will help). prefix sum of of element 
+at ith index = sum of all element from 0  to i
+plan - First pre compute prefix sum of all the elements of the array in O(n) time
+(just iterate and add elements)- store these in ps[n]. Then
+FindSum(l,r) is given by = ps[r]-ps[l-1] for l!=0 and ps[r] for l==0
+
+if l=0 then ps[r] else ( if (l==r) ps[r]-ps[r-1] else ps[r]-ps[l-1])
+requirement is hazy - [l,r] means sum including both l and r or excluding l and including r ?
+'''
+def FindSum(arr,ranges):# ranges = [[s1,e1],[s2,e2],[s3,e3]] where s_= start index,e_ = end index
+    # for each array number, calculate all prefix array  (sub arrays that start at that array element) sums
+    tmp = 0
+    n = len(arr)
+    ps = [] # prefix sum array
+    # ps = [tmp := tmp + x for x in arr]
+    for y in range(n):
+        tmp += arr[y]
+        ps.append(tmp)
+    
+    # tmp = 0
+    # ps = [tmp := tmp + x for x in arr] # list comprehension way to create prefix sum array
+    res = [ps[range[1]] if range[0]==0 else ( (ps[range[1]]-ps[range[1]-1]) if (range[1]==range[0]) else ps[range[1]]-ps[range[0]]) for range in ranges ]
+    print(res, ranges[0][1], ranges[0][0])
+    return res
+
+#assert(FindSum([1,2,3],[[1,1]])==[2])
+#assert(FindSum([1,2,3],[[0,0],[0,1],[0,2],[1,1],[1,2],[2,2]])==[1,3,6,2,5,3])
+
+'''
+given 2 arrays {max 100000 elements, each of which can have value between [0,100]} which correspond to start of range, end of range, find out any one element appears in most of the ranges
+plan -  we are given 0-10000 ranges each of which is from [0,100].
+quick thought solution - go through all ranges and add numbers to dictionary and while adding keep cound of element that occured maximum times. time complexity worst case - when all 100000 ranges are from 0-100 - O(n) = 10 power 7.
+    space complexity is constant O(100)  at the maximum. This can be thought linear in terms of input array size 
+    (times 100). But if 100 is also variable then its complexity is quadratic O(n*M)
+
+    another plan - O(size of range array)
+res=0; 
+max_element = -1
+for y in range(100) { // each integer in the range
+    tmp=0; // how many times does that integer occur across given ranges
+    for z in range(len(rs))} { 
+        if (rs[z] <= y <= re[z]) { tmp++; } 
+    } 
+    res = max(res, tmp); // if current 'y' occured in mroe ranges than update the result
+    max_element = y;
+}
+return max_element
+third plan - if rs array is sorted -even more optimized? - go through numbers of both arrays in ascending order, and increment 
+temporary variable 'tmp' each time start array element  is encountered (the start element will get overlap value as the number 'tmp' at that stage)
+ and decrement it each time end range element is encountered. Note max element and max time each time any start element is encountered.
+ When you reach end of all ranges you will have the number that has most overlap (as well as number of times it overlapped)
+
+
+ tmp = 1 # start of first range
+ ele = s[0]
+ si = 1
+ ei = 0
+ while si<n: # 'ei' might still be there but does not add value (after si is done) since each 'ei' decreases the 'tmp'
+    if s[si]<=e[ei]: # next in line is start of a range
+    
+    else: # next in line is end of a range
+
+
+'''
+def FindMaximumAppearingELement(s, e): # s = start range array, e = end range array
+    n = len(s) 
+    p = s[0] # current point
+    tmp = 1 # matching ranges
+    si = 1 # index in sra
+    ei = 0 # index in era
+    t = 1  # maximum so far
+    a = s[0] # answer =  element that occurs in maximum ranges
+    while si<n :
+        if s[si]<=e[ei]: # next in line is start of a range
+            tmp += 1 
+            if t < tmp:
+                t = tmp
+                a = s[si]
+            si += 1
+        else: # next in line is end of a range
+            tmp -= 1
+            ei += 1
+    return a
+
+assert(FindMaximumAppearingELement([1,2,5,15],[5,8,7,18])==5)
+assert(FindMaximumAppearingELement([1,2],[5,4])==2)
