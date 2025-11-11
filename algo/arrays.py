@@ -641,37 +641,11 @@ def FindSum(arr,ranges):# ranges = [[s1,e1],[s2,e2],[s3,e3]] where s_= start ind
 
 '''
 given 2 arrays {max 100000 elements, each of which can have value between [0,100]} which correspond to start of range, end of range, find out any one element appears in most of the ranges
-plan -  we are given 0-10000 ranges each of which is from [0,100].
-quick thought solution - go through all ranges and add numbers to dictionary and while adding keep cound of element that occured maximum times. time complexity worst case - when all 100000 ranges are from 0-100 - O(n) = 10 power 7.
-    space complexity is constant O(100)  at the maximum. This can be thought linear in terms of input array size 
-    (times 100). But if 100 is also variable then its complexity is quadratic O(n*M)
 
-    another plan - O(size of range array)
-res=0; 
-max_element = -1
-for y in range(100) { // each integer in the range
-    tmp=0; // how many times does that integer occur across given ranges
-    for z in range(len(rs))} { 
-        if (rs[z] <= y <= re[z]) { tmp++; } 
-    } 
-    res = max(res, tmp); // if current 'y' occured in mroe ranges than update the result
-    max_element = y;
-}
-return max_element
-third plan - if rs array is sorted -even more optimized? - go through numbers of both arrays in ascending order, and increment 
+plan - if s array is  sorted  - go through numbers of both arrays in ascending order, and increment 
 temporary variable 'tmp' each time start array element  is encountered (the start element will get overlap value as the number 'tmp' at that stage)
  and decrement it each time end range element is encountered. Note max element and max time each time any start element is encountered.
  When you reach end of all ranges you will have the number that has most overlap (as well as number of times it overlapped)
-
-
- tmp = 1 # start of first range
- ele = s[0]
- si = 1
- ei = 0
- while si<n: # 'ei' might still be there but does not add value (after si is done) since each 'ei' decreases the 'tmp'
-    if s[si]<=e[ei]: # next in line is start of a range
-    
-    else: # next in line is end of a range
 
 
 '''
@@ -695,5 +669,27 @@ def FindMaximumAppearingELement(s, e): # s = start range array, e = end range ar
             ei += 1
     return a
 
-assert(FindMaximumAppearingELement([1,2,5,15],[5,8,7,18])==5)
-assert(FindMaximumAppearingELement([1,2],[5,4])==2)
+# assert(FindMaximumAppearingELement([1,2,5,15],[5,8,7,18])==5)
+# assert(FindMaximumAppearingELement([1,2],[5,4])==2)
+
+'''
+equilibrium point in an array is any element (if it exists) such that sum of elements on its left side and sum of elements on its right side is the same.
+For elements at start and end of array, sum at the ends can be assumed to be 0.
+O(n) plan - calculate prefix sum array for all elements which is O(n). calculate suffix sum array for all elemetns of array  which is O(n). Third iteration
+go through each element and check if elements prefix sum and suffix sum are the same  which is O(n).
+Another approach is calculate and keep total_sum. start from 0th element and keep increasing left sum (adding on previous left sum) and right sum will be (total_sum-current_left_sum)
+'''
+def EquilibriumPoint(arr):
+    return 1
+
+'''
+For given array, can you divide it into 3 partitions such that all partitions total to the same value.
+
+plan - total the numbers and see if it is multiple of 3. If no, return 0. If yes, then get the total that three parts should be = total/3.
+Now we need to get 3 partitions of array each of which total to expected sum. one of these partitions starts from 0, while other partition ends at n-1. 
+Calculate prefix and suffix arrays. Go through them to get 
+indexes that total to given sum. The prefix array will give left most partition and suffix array will give right most partition. 
+Third partition is between these 2 already found out arrays.
+'''
+def DoesThreePartitionsWIthEqualSumExist(arr):
+    return 1
