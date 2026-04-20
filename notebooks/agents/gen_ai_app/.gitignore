@@ -1,0 +1,32 @@
+# Gradio Specific
+flagged/                # Default directory for gr.Interface(allow_flagging="manual")
+.gradio/                # Local cache and analytics data
+gradio/launches.json    # Local tracking of launches
+gradio/hash_seed.txt    # Internal seed files
+tmp.zip                 # Gradio temporary file packaging
+
+# Secrets (Crucial for API-based apps)
+.env                    # Environment variables (OpenAI keys, etc.)
+*.local                 # Local configuration overrides
+
+# Python Standard
+__pycache__/            # Bytecode cache
+*.py[cod]               # Compiled files
+*$py.class
+*.so                    # Shared objects
+.venv/                  # Virtual environment
+env/
+venv/
+ENV/
+
+# Distribution / Build
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# OS Specific
+.DS_Store               # macOS specific
+Thumbs.db               # Windows specific
