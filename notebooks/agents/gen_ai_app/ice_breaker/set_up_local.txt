@@ -1,0 +1,35 @@
+
+
+python3.11 -m venv icebreaker
+\icebreaker\scripts.activate.bat
+(make sure to deactivate current python environemnt if any exists already at the current command prompt)
+
+
+python.exe -m pip install --upgrade pip
+
+upgraded to pip 26.1.1
+
+pip install -r requirements.txt
+
+gives - ERROR: No matching distribution found for llama-hub==0.0.79.post1
+
+tried to change
+llama-hub==0.0.79.post1
+tollama-hub
+and 
+run install, now it gives different error -
+
+Failed to build chroma-hnswlib
+error: failed-wheel-build-for-install
+
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> chroma-hnswlib
+
+google AI - This error occurs because chroma-hnswlib is a C++ library that must be compiled during installation if a pre-built wheel isn't available for your system. The failure usually means your machine is missing a C++ compiler or the necessary build tools.
+
+Install the Microsoft C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/). In the installer, select the "Desktop development with C++" workload and ensure "MSVC v143" (or newer) is checked. Restart your computer and terminal before trying pip install chromadb again.
+
+
+Got the installer and ran the installer with default options (after selecting ) Desktop development with C++" workload.
+
+Now the pip install worked.
