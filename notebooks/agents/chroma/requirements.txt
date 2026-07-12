@@ -1,0 +1,4 @@
+chromadb==1.0.12
+torch
+sentence-transformers==4.1.0
+

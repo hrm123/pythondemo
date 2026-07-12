@@ -11,6 +11,7 @@ __pycache__/
 venv/
 env/
 agentvenv/
+.ai_planner/
 
 # Distribution / packaging
 .Python
