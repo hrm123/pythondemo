@@ -13,6 +13,7 @@ env/
 agentvenv/
 .ai_planner/
 .rag_with_vector_database/
+.videoqna/
 
 # Distribution / packaging
 .Python
