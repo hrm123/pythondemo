@@ -110,16 +110,23 @@ def chunk_transcript(processed_transcript, chunk_size=2, chunk_overlap=0):
 def setup_credentials():
     # Define the model ID for the WatsonX model being used
     model_id = "ibm/granite-8b-code-instruct"
+    
+    credentials = None
+    client = None
+    project_id = None
    
-    # Set up the credentials by specifying the URL for IBM Watson services
-    credentials = Credentials(url="https://us-south.ml.cloud.ibm.com")
-   
-    # Create an API client using the credentials
-    client = APIClient(credentials)
-   
-    # Define the project ID associated with the WatsonX platform
-    project_id = "skills-network"
-   
+    try:
+        # Set up the credentials by specifying the URL for IBM Watson services
+        credentials = Credentials(url="https://us-south.ml.cloud.ibm.com")
+       
+        # Create an API client using the credentials
+        client = APIClient(credentials)
+       
+        # Define the project ID associated with the WatsonX platform
+        project_id = "skills-network"
+    except Exception:
+        pass
+       
     # Return the model ID, credentials, client, and project ID for later use
     return model_id, credentials, client, project_id
  
@@ -347,7 +354,7 @@ def summarize_video(video_url):
     if processed_transcript:
         try:
             # Step 1: Set up IBM Watson credentials (kept for compatibility/tests)
-            model_id, credentials, client, project_id = setup_credentials()
+            # model_id, credentials, client, project_id = setup_credentials()
  
             # Step 2: Initialize Ollama LLM for summarization
             llm = initialize_ollama_llm()
