@@ -440,7 +440,9 @@ def summarize_video(video_url):
     if video_url:
         # Fetch and preprocess transcript
         fetched_transcript = get_transcript(video_url)
+        print('fetched transctipt:', fetched_transcript)
         processed_transcript = process(fetched_transcript)
+        print('processed transcript:', processed_transcript)
     else:
         return "Please provide a valid YouTube URL."
  

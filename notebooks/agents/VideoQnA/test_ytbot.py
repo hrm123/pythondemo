@@ -1,6 +1,16 @@
 from pprint import pprint
 import unittest
-from ytbot_local import get_video_id, get_transcript, process, chunk_transcript
+from unittest.mock import patch
+import ytbot_local_ as ytbot_local_alt
+from ytbot_local_ import get_video_id, get_transcript, process, chunk_transcript, summarize_video, answer_question
+
+
+class TestSummarizeVideo(unittest.TestCase):
+    def test_summarize_video(self):
+        url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        summary = summarize_video(url)
+        pprint(summary)
+        self.assertIsNotNone(summary)
 
 
 class TestGetVideoId(unittest.TestCase):
@@ -48,6 +58,13 @@ class TestChunks(unittest.TestCase):
         pprint(expected_output)
         pprint(actual)
         self.assertEqual(actual, expected_output)
+
+
+class TestFallbackBehavior(unittest.TestCase):
+    def test_summarize_video_falls_back_without_watsonx_credentials(self):
+        with patch.object(ytbot_local_alt, "setup_credentials", side_effect=Exception("missing credentials")):
+            result = ytbot_local_alt.summarize_video("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        self.assertIn("Unable to summarize", result)
 
 
 if __name__ == '__main__':
