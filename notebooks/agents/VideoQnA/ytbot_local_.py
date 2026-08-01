@@ -2,19 +2,43 @@
 import re  #For extracting video id
 from youtube_transcript_api import YouTubeTranscriptApi  # For extracting transcripts from YouTube videos
 from langchain.text_splitter import RecursiveCharacterTextSplitter  # For splitting text into manageable segments
-from ibm_watsonx_ai import APIClient, Credentials  # Kept for compatibility / tests
 from langchain_community.llms import Ollama  # For interacting with Ollama's LLM
 from langchain_community.embeddings import OllamaEmbeddings  # For interacting with Ollama's embeddings
 from langchain_community.vectorstores import FAISS  # For efficient vector storage and similarity search
 from langchain.chains import LLMChain  # For creating chains of operations with LLMs
 from langchain.prompts import PromptTemplate  # For defining prompt templates
- 
+# import http.cookiejar
+# import browser_cookie3
+
+
 def get_video_id(url):    
     # Regex pattern to match YouTube video URLs
     pattern = r'https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})'
     match = re.search(pattern, url)
     return match.group(1) if match else None
- 
+'''
+def export_youtube_cookies(output_file="youtube_cookies.txt"):
+    # 1. Automatically fetch all cookies from Chrome (or use .firefox(), .edge(), etc.)
+    try:
+        cj = browser_cookie3.chrome(domain_name=".youtube.com")
+    except Exception as e:
+        print(f"Error accessing browser database: {e}")
+        print("Please ensure your browser is completely closed before running.")
+        return
+
+    # 2. Initialize a Netscape-compatible cookie jar
+    netscape_jar = http.cookiejar.MozillaCookieJar(output_file)
+
+    # 3. Filter and transfer YouTube cookies into the Netscape jar
+    for cookie in cj:
+        if "youtube.com" in cookie.domain:
+            netscape_jar.set_cookie(cookie)
+
+    # 4. Save the cookies to the file
+    netscape_jar.save(ignore_discard=True, ignore_expires=True)
+    print(f"Successfully exported YouTube cookies to {output_file}!")
+ '''
+
 def get_transcript(url):
     # Extracts the video ID from the URL
     video_id = get_video_id(url)
@@ -24,8 +48,9 @@ def get_transcript(url):
     try:
         # Create a YouTubeTranscriptApi() object
         ytt_api = YouTubeTranscriptApi()
-       
+       # example url - https://www.youtube.com/watch?v=LNHBMFCzznE
         # Fetch the list of available transcripts for the given YouTube video
+        # export_youtube_cookies()  # Export cookies to a file for authentication
         transcripts = ytt_api.list(video_id)
        
         transcript = ""
@@ -37,7 +62,7 @@ def get_transcript(url):
                 if is_generated:
                     # If no transcript has been set yet, use the auto-generated one
                     if len(transcript) == 0:
-                        transcript = t.fetch()
+                        transcript = t.fetch() # is not working because youtube says IP blocked
                 else:
                     # If a manually created transcript is found, use it (overrides auto-generated)
                     transcript = t.fetch()
@@ -45,7 +70,8 @@ def get_transcript(url):
        
         if transcript:
             return transcript
-    except Exception:
+    except Exception as e:
+        print(e)
         pass
 
     return [{"text": "Transcript unavailable in this environment.", "start": 0.0, "duration": 0.0}]
@@ -106,40 +132,7 @@ def chunk_transcript(processed_transcript, chunk_size=2, chunk_overlap=0):
 
     return chunks
  
- 
-def setup_credentials():
-    # Define the model ID for the WatsonX model being used
-    model_id = "ibm/granite-8b-code-instruct"
-    
-    credentials = None
-    client = None
-    project_id = None
-   
-    try:
-        # Set up the credentials by specifying the URL for IBM Watson services
-        credentials = Credentials(url="https://us-south.ml.cloud.ibm.com")
-       
-        # Create an API client using the credentials
-        client = APIClient(credentials)
-       
-        # Define the project ID associated with the WatsonX platform
-        project_id = "skills-network"
-    except Exception:
-        pass
-       
-    # Return the model ID, credentials, client, and project ID for later use
-    return model_id, credentials, client, project_id
- 
-def define_parameters():
-    # Return a dictionary containing the parameters for the WatsonX model
-    return {
-        # Set the decoding method to GREEDY for generating text
-        GenParams.DECODING_METHOD: DecodingMethods.GREEDY,
-       
-        # Specify the maximum number of new tokens to generate
-        GenParams.MAX_NEW_TOKENS: 900,
-    }
- 
+
  
 def initialize_watsonx_llm(model_id, credentials, project_id, parameters):
     # Retained for compatibility/stubbing if needed
@@ -405,7 +398,7 @@ def answer_question(video_url, user_question):
             chunks = chunk_transcript(processed_transcript)
  
             # Step 2: Set up IBM Watson credentials (kept for compatibility/tests)
-            model_id, credentials, client, project_id = setup_credentials()
+            # model_id, credentials, client, project_id = setup_credentials()
  
             # Step 3: Initialize Ollama LLM for Q&A
             llm = initialize_ollama_llm()
