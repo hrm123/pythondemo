@@ -397,8 +397,6 @@ def answer_question(video_url, user_question):
             # Step 1: Chunk the transcript (only for Q&A)
             chunks = chunk_transcript(processed_transcript)
  
-            # Step 2: Set up IBM Watson credentials (kept for compatibility/tests)
-            # model_id, credentials, client, project_id = setup_credentials()
  
             # Step 3: Initialize Ollama LLM for Q&A
             llm = initialize_ollama_llm()

@@ -14,6 +14,7 @@ agentvenv/
 .ai_planner/
 .rag_with_vector_database/
 .videoqna/
+.multimodal/
 
 # Distribution / packaging
 .Python
