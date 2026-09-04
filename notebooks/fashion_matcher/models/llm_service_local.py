@@ -40,6 +40,7 @@ class QwenVisionService:
             logger.info("Sending request to LLM with prompt length: %d", len(prompt))
             
             # Create the messages object
+            '''
             messages = [
                 {
                     "role": "user",
@@ -58,6 +59,17 @@ class QwenVisionService:
                 }
             ]
 
+            '''
+
+            messages = [
+                {
+                     "role": "user",
+                    "content": prompt,
+                    "images": [encoded_image]
+                }
+            ]
+            
+            '''
             response = ollama.chat(
                 model=self.model_name,
                 messages=[{'role': 'user', 
@@ -65,6 +77,12 @@ class QwenVisionService:
                         'content': 'describe this image: D:\\code\\pythondemo\\notebooks\\fashion_matcher\\kate_perry.jpg'
                         }]
             )
+            '''
+            response = ollama.chat(
+                model=self.model_name,
+                messages=messages
+            )
+
             print("--- Standard Response ---")
             print(response['message']['content'])
            
@@ -136,7 +154,7 @@ class QwenVisionService:
         
         # Send the prompt to the model
         response = self.generate_response(user_image_base64, assistant_prompt)
-        
+        logger.info(f"Response from LLM = {response}")
         # Check if response is incomplete
         if len(response) < 100:
             logger.info("Response appears incomplete, creating basic response")
