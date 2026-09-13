@@ -1,0 +1,13 @@
+docling
+langgraph
+chromadb
+langchain
+gradio
+langchain-text-splitters
+langchain-community
+langchain-core
+langchain-ollama
+pydantic-settings
+loguru
+rank_bm25
+pypdf
