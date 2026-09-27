@@ -1,0 +1,9 @@
+crewai
+gradio
+langchain
+ollama
+litellm
+fastapi
+pydantic
+pillow
+requests
