@@ -236,7 +236,6 @@ class OneDiningPhilosophersTest:
 
     def run_test(self):
         self.dining_room.start_dining()
-        # since we are not craeting anydaemon threads, python interpreter will wait ti all the created threads have exited
         
 class TwoDiningPhilosophersTest:
     
@@ -245,9 +244,16 @@ class TwoDiningPhilosophersTest:
 
     def run_test(self):
         self.dining_room.start_dining()
-        # since we are not craeting anydaemon threads, python interpreter will wait ti all the created threads have exited
+
+class SixDiningPhilosophersTest:
+    
+    def __init__(self):
+        self.dining_room = DiningRoom(6)
+
+    def run_test(self):
+        self.dining_room.start_dining()
 
 
 if __name__ == "__main__":
-    test = TwoDiningPhilosophersTest()
+    test = SixDiningPhilosophersTest()
     test.run_test()
