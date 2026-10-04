@@ -229,7 +229,7 @@ class DiningRoom:
             philosopher.enter_dining_room()
 
 
-class DiningPhilosophersTest:
+class OneDiningPhilosophersTest:
     
     def __init__(self):
         self.dining_room = DiningRoom(1)
@@ -238,6 +238,16 @@ class DiningPhilosophersTest:
         self.dining_room.start_dining()
         # since we are not craeting anydaemon threads, python interpreter will wait ti all the created threads have exited
         
+class TwoDiningPhilosophersTest:
+    
+    def __init__(self):
+        self.dining_room = DiningRoom(2)
+
+    def run_test(self):
+        self.dining_room.start_dining()
+        # since we are not craeting anydaemon threads, python interpreter will wait ti all the created threads have exited
+
+
 if __name__ == "__main__":
-    test = DiningPhilosophersTest()
+    test = TwoDiningPhilosophersTest()
     test.run_test()
