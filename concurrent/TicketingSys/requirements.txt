@@ -1,3 +1,4 @@
 pydash===4.7.4
+legacy-cgi
 
 # use python 3

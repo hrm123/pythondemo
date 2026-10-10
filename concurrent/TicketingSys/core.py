@@ -17,10 +17,10 @@ def critical_section_acquire_release(name, sync_object):
     # Add random amount of time for sleep so that execution may be random
     time.sleep(random.randint(0, 10))
     sync_object.acquire()
-    logging.info("critical_section_acquire_release thread: %d acquired synchronization object.", name)
+    logging.debug("critical_section_acquire_release thread: %d acquired synchronization object.", name)
     thread_function(name)
     sync_object.release()
-    logging.info("critical_section_acquire_release thread: %d released synchronization object.", name)
+    logging.debug("critical_section_acquire_release thread: %d released synchronization object.", name)
 
 
 class Core:
@@ -28,13 +28,41 @@ class Core:
     file_username = None
     username_arg = None
     num_threads = 1
-    part_id = None
+    part_id = ''
 
-    def __init__(self, args_list=None):
+    def __init__(self, args_list=None, args=None):
         self.parser = argparse.ArgumentParser(description='Process command-line arguments')
         for arg in args_list:
             self.add_arg_parser_argument(arg)
         self.read_user_file()
+        self.parse_args(args)
+        output_file_name = "output-" + self.part_id + ".txt"
+        open(output_file_name, 'w').close()
+
+        _format = "%(asctime)s: %(message)s"
+        _date_format = "%H:%M:%S"
+
+        # 1. Create a main logger and set it to the lowest level you want to capture
+        self.logger = logging.getLogger("tktsys")
+        self.logger.setLevel(logging.DEBUG)  # Allows all logs to pass into the self.logger first
+        self.logger.propagate = False # Prevents logs from duplicating into the root console output
+
+         # 2. Console Handler (Captures everything DEBUG and above)
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        console_formatter = logging.Formatter(fmt=_format, datefmt=_date_format)
+        console_handler.setFormatter(console_formatter)
+
+        # 3. File Handler (Captures other than DEBUG logs)
+        file_handler = logging.FileHandler(output_file_name)
+        file_handler.setLevel(logging.INFO)  # <--- This filters out DEBUG, INFO, and WARNING
+        file_formatter = logging.Formatter(fmt=_format, datefmt=_date_format)
+        file_handler.setFormatter(file_formatter)
+
+        # 4. Add handlers to the self.logger
+        self.logger.addHandler(console_handler)
+        self.logger.addHandler(file_handler)
+
 
     def read_user_file(self):
         file = open(".user", "r")

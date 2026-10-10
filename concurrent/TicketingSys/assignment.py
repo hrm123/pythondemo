@@ -39,22 +39,22 @@ class Assignment(Core):
                                                     '.user file contents'],
                                ['-p', 'part_id', 'test', 'the id for the assignment, test by default']]
         self._ready_signal = []
-        super().__init__(self.args_conf_list)
-        super().parse_args(args=args)
-        _format = "%(asctime)s: %(message)s"
-        logging.basicConfig(format=_format, level=logging.INFO,
-                            datefmt="%H:%M:%S")
-    
+        super().__init__(self.args_conf_list,args)
+        # super().parse_args(args=args)
+        
+        # logging.basicConfig(format=_format, level=logging.INFO,
+          #                  datefmt="%H:%M:%S")
+
+        
+
 
     def run(self):
-        output_file_name = "output-" + self.part_id + ".txt"
-        open(output_file_name, 'w').close()
         if self.test_username_equality(self.USERNAME):
             sleeping_time = 0
             # Create the event signal
             self._ready_signal = [Event() for i in range(self.num_threads)]
             for index in range(self.num_threads):
-                logging.info("Assignment run    : create and start thread %d.", index)
+                self.logger.debug("Assignment run    : create and start thread %d.", index)
                 # This is where you will start a thread that will participate in a ticketing system
                 # have the thread run the execute_ticketing_system_participation function
                 _thread.start_new_thread(thread_function, (index,self._ready_signal[index]))
@@ -66,10 +66,10 @@ class Assignment(Core):
                 sleeping_time += 1
             time.sleep(sleeping_time)
             self.manage_ticketing_system()
-            logging.info("Assignment completed all running threads.")
+            self.logger.info("Assignment completed all running threads.")
             return 0
         else:
-            logging.error("Assignment had an error your usernames not matching. Please check code and .user file.")
+            self.logger.error("Assignment had an error your usernames not matching. Please check code and .user file.")
             return 1
 
     def manage_ticketing_system(self):
